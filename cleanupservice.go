@@ -8,9 +8,9 @@ import (
 )
 
 func CleanupService() {
-	log.Info("CLEANUPSERVICE started")
+	log.Info("CLEANUP_SERVICE started")
 
-	for ; true; <-time.Tick(time.Minute) {
+	for ; true; <-time.Tick(time.Minute * 10) {
 		path := "./vods"
 		files, err := GetFileList(path)
 		if err != nil {
@@ -18,15 +18,15 @@ func CleanupService() {
 		}
 
 		for _, f := range files {
-			if time.Since(f.ModTime) < time.Hour*72 {
+			if time.Since(f.ModTime) < Config.DeleteAfter {
 				continue
 			}
 
 			err := os.Remove(path + "/" + f.Name)
 			if err != nil {
-				log.Info("CLEANUPSERVICE Could not remove file", "name", f.Name, "err", err)
+				log.Info("CLEANUP_SERVICE Could not remove file", "name", f.Name, "err", err)
 			} else {
-				log.Info("CLEANUPSERVICE Removed file", "name", f.Name)
+				log.Info("CLEANUP_SERVICE Removed file", "name", f.Name)
 			}
 		}
 	}

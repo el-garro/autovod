@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os/exec"
-	"strconv"
 )
 
 const (
@@ -127,13 +126,8 @@ func GetLatestVODUrl(channel string) (string, error) {
 	return "https://www.twitch.tv/videos/" + responseData.Data.User.Videos.Edges[0].Node.ID, nil
 }
 
-func DownloadVOD(url string, height string) error {
-	h, err := strconv.Atoi(height)
-	if err != nil || h <= 0 {
-		return fmt.Errorf("invalid height %q: must be a positive integer", height)
-	}
-
-	formatArg := fmt.Sprintf("--format=best[height<=%d]", h)
+func DownloadVOD(url string, height uint) error {
+	formatArg := fmt.Sprintf("--format=best[height<=%d]", height)
 
 	cmd := exec.Command(
 		"yt-dlp",

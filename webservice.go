@@ -92,6 +92,6 @@ func WebService() {
 		http.ServeFile(w, r, fp)
 	})
 
-	log.Info("WEBSERVICE started", "url", "http://localhost:8080")
-	log.Fatal("WEBSERVICE crashed", "err", http.ListenAndServe(":8080", nil))
+	log.Info("WEB_SERVICE started", "url", fmt.Sprintf("http://localhost:%d", Config.WebPort))
+	log.Fatal("WEB_SERVICE crashed", "err", http.ListenAndServe(fmt.Sprintf(":%d", Config.WebPort), nil))
 }

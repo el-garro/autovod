@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/charmbracelet/log"
 )
@@ -48,7 +49,7 @@ const indexHTML = `<!DOCTYPE html>
       </tr>
     </thead>
     <tbody>
-      {{- range . }}
+      {{- range .Files }}
       <tr>
         <td class="name">
           <span class="emoji">📄</span>
@@ -62,11 +63,27 @@ const indexHTML = `<!DOCTYPE html>
       {{- end }}
     </tbody>
   </table>
+  <p><strong>Running for:</strong> {{ .ElapsedTime }}</p>
 </body>
 </html>`
 
 func WebService() {
+	logger := log.NewWithOptions(
+		os.Stderr,
+		log.Options{
+			Level:           log.InfoLevel,
+			Prefix:          "WEB",
+			ReportTimestamp: true,
+		},
+	)
+
 	saveDir := "./vods"
+	startTime := time.Now()
+
+	type PageData struct {
+		Files       []FileInfo
+		ElapsedTime time.Duration
+	}
 
 	tmpl := template.Must(template.New("index").Parse(indexHTML))
 	os.Mkdir(saveDir, os.ModePerm)
@@ -82,7 +99,12 @@ func WebService() {
 			return files[i].ModTime.After(files[j].ModTime)
 		})
 
-		if err := tmpl.Execute(w, files); err != nil {
+		page := PageData{
+			Files:       files,
+			ElapsedTime: time.Since(startTime).Truncate(time.Second),
+		}
+
+		if err := tmpl.Execute(w, page); err != nil {
 			http.Error(w, "Template rendering error", http.StatusInternalServerError)
 		}
 	})
@@ -94,6 +116,6 @@ func WebService() {
 		http.ServeFile(w, r, fp)
 	})
 
-	log.Info("WEB_SERVICE started", "url", fmt.Sprintf("http://localhost:%d", Config.WebPort))
-	log.Fatal("WEB_SERVICE crashed", "err", http.ListenAndServe(fmt.Sprintf(":%d", Config.WebPort), nil))
+	logger.Info("Service started", "url", fmt.Sprintf("http://localhost:%d", Config.WebPort))
+	logger.Fatal("Crashed", "err", http.ListenAndServe(fmt.Sprintf(":%d", Config.WebPort), nil))
 }

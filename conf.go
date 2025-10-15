@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -19,10 +20,21 @@ type cfg struct {
 var Config cfg
 
 func LoadConfig() {
+	logger := log.NewWithOptions(
+		os.Stderr,
+		log.Options{
+			Level:           log.InfoLevel,
+			Prefix:          "CFG",
+			ReportTimestamp: true,
+		},
+	)
+
 	godotenv.Overload()
 
 	err := env.Parse(&Config)
 	if err != nil {
-		log.Fatal("Invalid config", "err", err)
+		logger.Fatal("Invalid config", "err", err)
 	}
+
+	logger.Info("Loaded config", "cfg", Config)
 }

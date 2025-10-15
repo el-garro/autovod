@@ -8,7 +8,16 @@ import (
 )
 
 func CleanupService() {
-	log.Info("CLEANUP_SERVICE started")
+	logger := log.NewWithOptions(
+		os.Stderr,
+		log.Options{
+			Level:           log.InfoLevel,
+			Prefix:          "CLEANUP",
+			ReportTimestamp: true,
+		},
+	)
+
+	logger.Info("Service started")
 
 	for ; true; <-time.Tick(time.Minute * 10) {
 		path := "./vods"
@@ -24,9 +33,9 @@ func CleanupService() {
 
 			err := os.Remove(path + "/" + f.Name)
 			if err != nil {
-				log.Info("CLEANUP_SERVICE Could not remove file", "name", f.Name, "err", err)
+				logger.Info("Could not remove file", "name", f.Name, "err", err)
 			} else {
-				log.Info("CLEANUP_SERVICE Removed file", "name", f.Name)
+				logger.Info("Removed file", "name", f.Name)
 			}
 		}
 	}

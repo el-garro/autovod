@@ -1,27 +1,26 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/charmbracelet/log"
 )
 
 func main() {
-	log.SetLevel(log.InfoLevel)
-
-	log.Info("Initializing...")
-
-	LoadConfig()
-	log.Info(
-		"Config:",
-		"TWITCH_CLIENT_ID", Config.TwitchClientID,
-		"TWITCH_CHANNEL", Config.TwitchChannel,
-		"TWITCH_VIDEO_HEIGHT", Config.TwitchVideoHeight,
-		"DELETE_VOD_AFTER", Config.DeleteAfter,
-		"WEB_SERVER_PORT", Config.WebPort,
+	logger := log.NewWithOptions(
+		os.Stderr,
+		log.Options{
+			Level:           log.InfoLevel,
+			Prefix:          "MAIN",
+			ReportTimestamp: true,
+		},
 	)
 
-	log.Info("Starting services...")
+	logger.Info("Initializing...")
+	LoadConfig()
+
+	logger.Info("Starting services...")
 
 	go WebService()
 	go CleanupService()

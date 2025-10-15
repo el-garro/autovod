@@ -19,7 +19,7 @@ func CleanupService() {
 
 	logger.Info("Service started")
 
-	for ; true; <-time.Tick(time.Minute * 10) {
+	for ; true; <-time.Tick(time.Minute) {
 		path := "./vods"
 		files, err := GetFileList(path)
 		if err != nil {

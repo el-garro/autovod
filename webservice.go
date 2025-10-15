@@ -66,11 +66,13 @@ const indexHTML = `<!DOCTYPE html>
 </html>`
 
 func WebService() {
+	saveDir := "./vods"
+
 	tmpl := template.Must(template.New("index").Parse(indexHTML))
-	os.Mkdir("./vods", os.ModePerm)
+	os.Mkdir(saveDir, os.ModePerm)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		files, err := GetFileList("./vods")
+		files, err := GetFileList(saveDir)
 		if err != nil {
 			http.Error(w, "Cannot read directory", http.StatusInternalServerError)
 			return
@@ -87,7 +89,7 @@ func WebService() {
 
 	http.HandleFunc("/download/", func(w http.ResponseWriter, r *http.Request) {
 		file := r.URL.Path[len("/download/"):]
-		fp := filepath.Join("www", file)
+		fp := filepath.Join(saveDir, file)
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file))
 		http.ServeFile(w, r, fp)
 	})

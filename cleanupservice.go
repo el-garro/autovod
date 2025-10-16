@@ -20,8 +20,7 @@ func CleanupService() {
 	logger.Info("Service started")
 
 	for ; true; <-time.Tick(time.Minute) {
-		path := "./vods"
-		files, err := GetFileList(path)
+		files, err := GetFileList(DOWNLOAD_DIR)
 		if err != nil {
 			continue
 		}
@@ -31,7 +30,7 @@ func CleanupService() {
 				continue
 			}
 
-			err := os.Remove(path + "/" + f.Name)
+			err := os.Remove(DOWNLOAD_DIR + "/" + f.Name)
 			if err != nil {
 				logger.Info("Could not remove file", "name", f.Name, "err", err)
 			} else {

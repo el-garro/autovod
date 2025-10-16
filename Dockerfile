@@ -13,7 +13,7 @@ RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /bi
 RUN chmod a+rx /bin/yt-dlp
 
 RUN apk update
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg python3
 
 WORKDIR /
 COPY --from=builder /build/autovod .

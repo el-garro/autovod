@@ -77,7 +77,6 @@ func WebService() {
 		},
 	)
 
-	saveDir := "./vods"
 	startTime := time.Now()
 
 	type PageData struct {
@@ -86,10 +85,10 @@ func WebService() {
 	}
 
 	tmpl := template.Must(template.New("index").Parse(indexHTML))
-	os.Mkdir(saveDir, os.ModePerm)
+	os.Mkdir(DOWNLOAD_DIR, os.ModePerm)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		files, err := GetFileList(saveDir)
+		files, err := GetFileList(DOWNLOAD_DIR)
 		if err != nil {
 			http.Error(w, "Cannot read directory", http.StatusInternalServerError)
 			return
@@ -111,7 +110,7 @@ func WebService() {
 
 	http.HandleFunc("/download/", func(w http.ResponseWriter, r *http.Request) {
 		file := r.URL.Path[len("/download/"):]
-		fp := filepath.Join(saveDir, file)
+		fp := filepath.Join(DOWNLOAD_DIR, file)
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file))
 		http.ServeFile(w, r, fp)
 	})

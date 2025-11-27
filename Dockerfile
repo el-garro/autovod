@@ -11,7 +11,7 @@ FROM alpine
 
 RUN apk update
 RUN apk add --no-cache ffmpeg python3 py3-pip
-RUN pip3 install --no-cache-dir yt-dlp
+RUN python3 -m pip install --no-cache-dir yt-dlp
 
 WORKDIR /
 COPY --from=builder /build/autovod .

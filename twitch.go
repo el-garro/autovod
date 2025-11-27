@@ -132,7 +132,7 @@ func DownloadVOD(url string, height uint) error {
 	cmd := exec.Command(
 		"yt-dlp",
 		"--paths", "home:"+DOWNLOAD_DIR,
-		"--paths", "temp:./tmp",
+		"--paths", "temp:tmp",
 		"--live-from-start",
 		formatArg,
 		url,

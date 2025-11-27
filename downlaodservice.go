@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -35,6 +38,12 @@ func DownloadService(channel string) {
 			continue
 		}
 
+		logger.Info("Checking yt-dlp version...")
+		err = UpdateYtDlp()
+		if err != nil {
+			logger.Warn("Could not update yt-dlp", "err", err)
+			continue
+		}
 		logger.Info("Downloading...", "url", vodurl)
 		err = DownloadVOD(vodurl, Config.TwitchVideoHeight)
 		if err != nil {
@@ -44,4 +53,17 @@ func DownloadService(channel string) {
 
 		logger.Info("Downloaded VOD", "url", vodurl)
 	}
+}
+
+func UpdateYtDlp() error {
+	cmd := exec.Command("pip", "install", "-U", "yt-dlp")
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("yt-dlp update failed: %s", stderr.String())
+	}
+
+	return nil
 }

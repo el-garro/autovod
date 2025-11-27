@@ -18,6 +18,11 @@ const indexHTML = `<!DOCTYPE html>
   <meta charset="utf-8">
   <title>Twitch Auto VOD</title>
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <style>
+    .size-col {
+      white-space: nowrap;
+    }
+  </style>
 </head>
 <body>
   <main class="container">
@@ -27,7 +32,7 @@ const indexHTML = `<!DOCTYPE html>
       <thead>
         <tr>
           <th>Name</th>
-          <th>Size</th>
+          <th class="size-col">Size</th>
           <th>Date</th>
         </tr>
       </thead>
@@ -37,7 +42,7 @@ const indexHTML = `<!DOCTYPE html>
           <td>
             📄 <a href="/download/{{ .Name }}" download>{{ .Name }}</a>
           </td>
-          <td>{{ .Size }}</td>
+          <td class="size-col">{{ .Size }}</td>
           <td>{{ .ModTime.Format "2006-01-02 15:04:05" }}</td>
         </tr>
         {{- else }}

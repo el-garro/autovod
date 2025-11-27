@@ -10,7 +10,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o autovod
 FROM alpine
 
 RUN apk update
-RUN apk add --no-cache ffmpeg python3 py3-pip
+RUN apk add --no-cache ffmpeg python3 py3-pip py3-setuptools py3-wheel
 RUN python3 -m pip install --no-cache-dir yt-dlp
 
 WORKDIR /

@@ -56,7 +56,7 @@ func DownloadService(channel string) {
 }
 
 func UpdateYtDlp() error {
-	cmd := exec.Command("python3", "-m", "pip", "install", "-U", "yt-dlp")
+	cmd := exec.Command("pip3", "install", "-U", "yt-dlp")
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

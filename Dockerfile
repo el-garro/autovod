@@ -7,11 +7,9 @@ COPY . .
 RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o autovod
 
-FROM alpine
+FROM python:3-alpine
 
-RUN apk update
-RUN apk add --no-cache ffmpeg python3 py3-pip py3-setuptools py3-wheel
-RUN python3 -m pip install --no-cache-dir yt-dlp
+RUN apk add --no-cache ffmpeg && pip3 install --no-cache-dir yt-dlp
 
 WORKDIR /
 COPY --from=builder /build/autovod .

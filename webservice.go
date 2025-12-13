@@ -56,6 +56,60 @@ const indexHTML = `<!DOCTYPE html>
 </body>
 </html>`
 
+var startTime time.Time
+var tmpl *template.Template
+
+type PageData struct {
+	Files       []FileInfo
+	ElapsedTime time.Duration
+}
+
+type UserCredentials struct {
+	Username string
+	Password string
+}
+
+func BasicAuthMiddleware(handler http.HandlerFunc, creds UserCredentials) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, pass, ok := r.BasicAuth()
+		if !ok || user != creds.Username || pass != creds.Password {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		handler(w, r)
+	}
+}
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	files, err := GetFileList(DOWNLOAD_DIR)
+	if err != nil {
+		http.Error(w, "Cannot read directory", http.StatusInternalServerError)
+		return
+	}
+
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].ModTime.After(files[j].ModTime)
+	})
+
+	page := PageData{
+		Files:       files,
+		ElapsedTime: time.Since(startTime).Truncate(time.Second),
+	}
+
+	if err := tmpl.Execute(w, page); err != nil {
+		http.Error(w, "Template rendering error", http.StatusInternalServerError)
+	}
+}
+
+func DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	file := r.URL.Path[len("/download/"):]
+	fp := filepath.Join(DOWNLOAD_DIR, file)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file))
+	http.ServeFile(w, r, fp)
+}
+
 func WebService() {
 	logger := log.NewWithOptions(
 		os.Stderr,
@@ -66,43 +120,18 @@ func WebService() {
 		},
 	)
 
-	startTime := time.Now()
-
-	type PageData struct {
-		Files       []FileInfo
-		ElapsedTime time.Duration
-	}
-
-	tmpl := template.Must(template.New("index").Parse(indexHTML))
+	startTime = time.Now()
+	tmpl = template.Must(template.New("index").Parse(indexHTML))
 	os.Mkdir(DOWNLOAD_DIR, os.ModePerm)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		files, err := GetFileList(DOWNLOAD_DIR)
-		if err != nil {
-			http.Error(w, "Cannot read directory", http.StatusInternalServerError)
-			return
-		}
+	creds := UserCredentials{
+		Username: Config.HttpUser,
+		Password: Config.HttpPassword,
+	}
 
-		sort.Slice(files, func(i, j int) bool {
-			return files[i].ModTime.After(files[j].ModTime)
-		})
+	http.HandleFunc("/", BasicAuthMiddleware(IndexHandler, creds))
 
-		page := PageData{
-			Files:       files,
-			ElapsedTime: time.Since(startTime).Truncate(time.Second),
-		}
-
-		if err := tmpl.Execute(w, page); err != nil {
-			http.Error(w, "Template rendering error", http.StatusInternalServerError)
-		}
-	})
-
-	http.HandleFunc("/download/", func(w http.ResponseWriter, r *http.Request) {
-		file := r.URL.Path[len("/download/"):]
-		fp := filepath.Join(DOWNLOAD_DIR, file)
-		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file))
-		http.ServeFile(w, r, fp)
-	})
+	http.HandleFunc("/download/", DownloadHandler)
 
 	logger.Info("Service started", "url", fmt.Sprintf("http://localhost:%d", Config.WebPort))
 	logger.Fatal("Crashed", "err", http.ListenAndServe(fmt.Sprintf(":%d", Config.WebPort), nil))

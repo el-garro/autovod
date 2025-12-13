@@ -15,6 +15,8 @@ type cfg struct {
 	TwitchVideoHeight uint          `env:"TWITCH_VIDEO_HEIGHT" envDefault:"4096"`
 	DeleteAfter       time.Duration `env:"DELETE_VOD_AFTER" envDefault:"72h"`
 	WebPort           uint          `env:"WEB_SERVER_PORT" envDefault:"8080"`
+	HttpUser          string        `env:"HTTP_USER"`
+	HttpPassword      string        `env:"HTTP_PASSW"`
 }
 
 var Config cfg

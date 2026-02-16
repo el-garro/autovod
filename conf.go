@@ -17,6 +17,7 @@ type cfg struct {
 	WebPort           uint          `env:"WEB_SERVER_PORT" envDefault:"8080"`
 	HttpUser          string        `env:"HTTP_USER"`
 	HttpPassword      string        `env:"HTTP_PASSW"`
+	DownloadDir       string        `env:"DOWNLOAD_DIR" envDefault:"./vods"`
 }
 
 var Config cfg

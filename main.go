@@ -7,8 +7,6 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const DOWNLOAD_DIR = "./vods"
-
 func main() {
 	logger := log.NewWithOptions(
 		os.Stderr,

@@ -45,7 +45,7 @@ func DownloadService(channel string) {
 			continue
 		}
 		logger.Info("Downloading...", "url", vodurl)
-		err = DownloadVOD(vodurl, Config.TwitchVideoHeight)
+		err = DownloadVOD(vodurl, Config.TwitchVideoHeight, Config.DownloadDir)
 		if err != nil {
 			logger.Warn(" Could not download VOD", "url", vodurl, "err", err)
 			continue
@@ -56,7 +56,7 @@ func DownloadService(channel string) {
 }
 
 func UpdateYtDlp() error {
-	cmd := exec.Command("pip3", "install", "-U", "yt-dlp")
+	cmd := exec.Command("pip3", "install", "--break-system-packages", "-U", "yt-dlp")
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

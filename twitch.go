@@ -126,12 +126,12 @@ func GetLatestVODUrl(channel string) (string, error) {
 	return "https://www.twitch.tv/videos/" + responseData.Data.User.Videos.Edges[0].Node.ID, nil
 }
 
-func DownloadVOD(url string, height uint) error {
+func DownloadVOD(url string, height uint, savepath string) error {
 	formatArg := fmt.Sprintf("--format=best[height<=%d]", height)
 
 	cmd := exec.Command(
 		"yt-dlp",
-		"--paths", "home:"+DOWNLOAD_DIR,
+		"--paths", "home:"+savepath,
 		"--paths", "temp:tmp",
 		"--live-from-start",
 		formatArg,

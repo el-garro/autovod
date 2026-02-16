@@ -20,7 +20,7 @@ func CleanupService() {
 	logger.Info("Service started")
 
 	for ; true; <-time.Tick(time.Minute) {
-		files, err := GetFileList(DOWNLOAD_DIR)
+		files, err := GetFileList(Config.DownloadDir)
 		if err != nil {
 			continue
 		}
@@ -30,7 +30,7 @@ func CleanupService() {
 				continue
 			}
 
-			err := os.Remove(DOWNLOAD_DIR + "/" + f.Name)
+			err := os.Remove(Config.DownloadDir + "/" + f.Name)
 			if err != nil {
 				logger.Info("Could not remove file", "name", f.Name, "err", err)
 			} else {

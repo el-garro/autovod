@@ -88,7 +88,7 @@ func authMiddleware(handler http.HandlerFunc, creds userCredentials) http.Handle
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	files, err := GetFileList(DOWNLOAD_DIR)
+	files, err := GetFileList(Config.DownloadDir)
 	if err != nil {
 		http.Error(w, "Cannot read directory", http.StatusInternalServerError)
 		return
@@ -110,7 +110,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	file := r.URL.Path[len("/download/"):]
-	fp := filepath.Join(DOWNLOAD_DIR, file)
+	fp := filepath.Join(Config.DownloadDir, file)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file))
 	http.ServeFile(w, r, fp)
 }
@@ -127,7 +127,7 @@ func WebService() {
 
 	startTime = time.Now()
 	indexTemplate = template.Must(template.New("index").Parse(indexHTML))
-	os.Mkdir(DOWNLOAD_DIR, os.ModePerm)
+	os.Mkdir(Config.DownloadDir, os.ModePerm)
 
 	creds := userCredentials{
 		Username: Config.HttpUser,

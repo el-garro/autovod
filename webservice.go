@@ -52,6 +52,7 @@ const indexHTML = `<!DOCTYPE html>
     </table>
 
     <p><strong>Running for:</strong> {{ .ElapsedTime }}</p>
+	<p><a href="https://tierhive.com/r/DED8D06D87DA">Hosted on TierHive Hourly VPS</a></p>
   </main>
 </body>
 </html>`

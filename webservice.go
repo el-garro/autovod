@@ -52,13 +52,23 @@ const indexHTML = `<!DOCTYPE html>
     </table>
 
     <p><strong>Running for:</strong> {{ .ElapsedTime }}</p>
-	<p><a href="https://tierhive.com/r/DED8D06D87DA">Hosted on TierHive Hourly VPS</a></p>
   </main>
 </body>
 </html>`
 
+const tierHiveReferralHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Twitch Auto VOD</title>
+	<body>
+		<a href="https://tierhive.com/r/DED8D06D87DA">Hosted on TierHive Hourly VPS</a>
+	</body>
+</html>`
+
 var startTime time.Time
 var indexTemplate *template.Template
+var tierHiveReferralTemplate *template.Template
 
 type pageData struct {
 	Files       []FileInfo
@@ -109,6 +119,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func tierHiveReferralHandler(w http.ResponseWriter, r *http.Request) {
+	if err := tierHiveReferralTemplate.Execute(w, nil); err != nil {
+		http.Error(w, "Template rendering error", http.StatusInternalServerError)
+	}
+}
+
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	file := r.URL.Path[len("/download/"):]
 	fp := filepath.Join(Config.DownloadDir, file)
@@ -128,6 +144,7 @@ func WebService() {
 
 	startTime = time.Now()
 	indexTemplate = template.Must(template.New("index").Parse(indexHTML))
+	tierHiveReferralTemplate = template.Must(template.New("tierhive").Parse(tierHiveReferralHTML))
 	os.Mkdir(Config.DownloadDir, os.ModePerm)
 
 	creds := userCredentials{
@@ -137,6 +154,7 @@ func WebService() {
 
 	http.HandleFunc("/", authMiddleware(indexHandler, creds))
 	http.HandleFunc("/download/", downloadHandler)
+	http.HandleFunc("/tierhive/", tierHiveReferralHandler)
 
 	logger.Info("Service started", "url", fmt.Sprintf("http://localhost:%d", Config.WebPort))
 	logger.Fatal("Crashed", "err", http.ListenAndServe(fmt.Sprintf(":%d", Config.WebPort), nil))
